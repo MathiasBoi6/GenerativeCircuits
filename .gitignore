@@ -1,5 +1,6 @@
 # My additions
 .vscode/
+nca_square.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
