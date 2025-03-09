@@ -1,6 +1,7 @@
 # My additions
 .vscode/
 nca_square.py
+emojiTensors.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
