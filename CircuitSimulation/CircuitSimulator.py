@@ -194,7 +194,7 @@ def GetSocketMap(circuit : RawCircuit, SocketList : list[Socket]):
         
         gateId += 1
 
-    return ComponentMap
+    return ComponentMap, WireSetGrid
 
 # Map from wireSets to components
 def GetConnectionMap(ComponentMap : dict):
@@ -227,7 +227,7 @@ def getSocket(socketName, socketMap):
 # Update is always flipping state of a source/emitter component/socket.
 def UpdateCircuitSource(connectionMap, socketMap, source, depth):
     if (depth > 20):
-        raise f"Maximum recursion depth of {depth} exceeded"
+        raise Exception(f"Maximum recursion depth of {depth} exceeded")
     
     # Update state of component
     source.state = not source.state
@@ -292,6 +292,7 @@ def Simulate(connectionMap, socketMap, operationOrder):
         if prefix == 'NAND' and not socket.state:
             UpdateCircuitSource(connectionMap, socketMap, socket, 0)
 
+
     for order in operationOrder:
         UpdateCircuitSource(connectionMap, socketMap, order, 0)
 
@@ -302,3 +303,10 @@ def Simulate(connectionMap, socketMap, operationOrder):
         if not comp_type:
             circuitState.append((socket, socket.state))
     return circuitState
+
+# note about circuits
+# if i have a NAND gate emitting straight to another gate, like with this circuit section:
+# [0, 0, 3, 2, 0, 0]
+# [0, 0, 0, 1, 1, 1]
+# The second row is emitting on the right, because the NAND gate is emitting to the wireset that is vertically across the AND gate.
+# This may be unclear from looking at the circuit, but there isn't really anything wrong with it.
