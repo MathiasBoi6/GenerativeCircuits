@@ -88,18 +88,25 @@ def WireSets(WireImage : RawCircuit):
     def TraceSetEnd(position, newParent):
         # Traces the connections until it reaches an element pointing to itself (the end)
         # Each value iterated over in the process have their parent set to the end value.
-        
+
         while connections[position] is not newParent:
             nextPosition = connections[position]
             connections[position] = newParent
             position = nextPosition
+
+    def TraceGet(position):
+        # This should be changed to set values during travel as a dynamic programming approach.
+        while position is not connections[position]:
+            position = connections[position]
+        
+        return position
 
     # Create disjoint sets of connected wires
     for i in range(connections.shape[0]):
         for j in range(connections.shape[1]):
             if WireImage[i + 1, j + 1] == 1: # If current pixel has a wire
                 if WireImage[i, j + 1] >= 1: # and the pixel above has a wire
-                    connections[i, j] = connections[i - 1, j]
+                    connections[i, j] = TraceGet((i - 1, j)) # In the case that the above pixel was part of a set that has been changed, get current set representative.
 
                     if WireImage[i + 1, j] == 1: # if both left and up have a wire, set up to use above as parent.
                         TraceSetEnd((i, j - 1), connections[i, j])
@@ -115,13 +122,7 @@ def WireSets(WireImage : RawCircuit):
                     connections[i, j] = connections[i - 1, j]
                 else: # If no connections found, set as set containing self
                     connections[i, j] = (i, j)
-
-    def TraceSet(position):
-        # This should be changed to set values during travel as a dynamic programming approach.
-        while position is not connections[position]:
-            position = connections[position]
-        
-        return position
+    
 
     connectionDict = {}
     setCount = 0
@@ -129,7 +130,7 @@ def WireSets(WireImage : RawCircuit):
     for i in range(connections.shape[0]):
         for j in range(connections.shape[1]):
             if connections[i, j] is not None:
-                setRepressentative = TraceSet(connections[i, j])
+                setRepressentative = TraceGet(connections[i, j])
 
                 if setRepressentative not in connectionDict:
                     setCount += 1
