@@ -224,7 +224,7 @@ def getSocket(socketName, socketMap):
         raise ValueError(f"Socket {socketName} not found in socket map")
     return socket
 
-
+""" THIS CODE HAS BEEN REPLCAED WITH AN UPDATED VERSION BELOW, KEPT AS REFERENCE IN CASE OF ERROR
 # Update is always flipping state of a source/emitter component/socket.
 def UpdateCircuitSource(connectionMap, socketMap, source, depth):
     if (depth > 20):
@@ -280,6 +280,77 @@ def UpdateCircuitSource(connectionMap, socketMap, source, depth):
             
             for socket in updateQueue:
                 UpdateCircuitSource(connectionMap, socketMap, socket, depth + 1)
+"""
+# Update is always flipping state of a source/emitter component/socket.
+def UpdateCircuitSource(connectionMap, socketMap, source, depth):
+    if (depth > 20):
+        raise Exception(f"Maximum recursion depth of {depth} exceeded")
+    
+    # Update state of component
+    source.state = not source.state
+
+    for connection in socketMap[source]:
+        socketsToUpdate = [socket for socket in connectionMap[connection] if not socket.isSource]
+        if not source.state:
+            # When source is turned off
+            wireSources = [socket for socket in connectionMap[connection] if socket.isSource]
+
+            if not any(source.state for source in wireSources):
+                #If there is no source that is emitting a signal on the wireSet,
+                # update connected components
+
+                updateQueue = set() # Set of sources that are to be flipped.
+                for socket in socketsToUpdate:
+                    socket.state = False
+
+                    prefix, comp_id, comp_type = socket.name
+
+                    # This triggers for all of base, collector, and emitter. So use set to get only one.
+                    if comp_type: #If gate
+                        updateQueue.add(getSocket(prefix + comp_id + 'emitter', socketMap))
+
+                for socket in updateQueue:
+                    prefix, comp_id, comp_type = socket.name
+
+                    if comp_type: #If gate
+                        
+                        emitterState = doesGateFire(
+                            getSocket(prefix + comp_id + 'base', socketMap),
+                            getSocket(prefix + comp_id + 'collector', socketMap),
+                            prefix)
+                        
+                        if emitterState != getSocket(prefix + comp_id + 'emitter', socketMap).state:
+                            UpdateCircuitSource(connectionMap, socketMap, socket, depth + 1)
+                    else:
+                        UpdateCircuitSource(connectionMap, socketMap, socket, depth + 1)
+        else:
+            # When source is turned on
+            updateQueue = set() # Set of sources that are to be flipped.
+            for socket in socketsToUpdate:
+                socket.state = True
+
+                prefix, comp_id, comp_type = socket.name
+
+                # This triggers for all of base, collector, and emitter. So use set to get only one.
+                if comp_type: #If gate
+                    updateQueue.add(getSocket(prefix + comp_id + 'emitter', socketMap))
+
+                for socket in updateQueue:
+                    prefix, comp_id, comp_type = socket.name
+
+                    if comp_type: #If gate
+                        
+                        emitterState = doesGateFire(
+                            getSocket(prefix + comp_id + 'base', socketMap),
+                            getSocket(prefix + comp_id + 'collector', socketMap),
+                            prefix)
+                        
+                        if emitterState != getSocket(prefix + comp_id + 'emitter', socketMap).state:
+                            UpdateCircuitSource(connectionMap, socketMap, socket, depth + 1)
+                    else:
+                        UpdateCircuitSource(connectionMap, socketMap, socket, depth + 1)
+
+
 
 
 ### ! WARNING ! ###
@@ -290,7 +361,7 @@ def Simulate(connectionMap, socketMap, operationOrder):
     for socket in socketMap:
         prefix, id, comp_type = socket.name
 
-        if prefix == 'NAND' and not socket.state:
+        if socket.isSource and prefix == 'NAND' and not socket.state:
             UpdateCircuitSource(connectionMap, socketMap, socket, 0)
 
 
