@@ -8,7 +8,6 @@ EXPERIMENT_NAME= "SquareReqRemoved"
 
 
 # Training Function
-
 def trainCatModel(catModel, dataloader, embeddingModel, losses, stopAccuracy = 0.05, batchLimit = 100, PLOTUPDATES = True):
     catModel.train()
     updateRate = 10 # For plotting purposes
@@ -156,8 +155,8 @@ def pruneExcessWires(circuit):
     
     for j in range(1, circuit.shape[0] - 1):
         for i in range(circuit.shape[1]):
-            center = circuit[i][j]
             up     = circuit[i - 1][j] if i > 0 else 0
+            center = circuit[i][j]
             down   = circuit[i + 1][j] if i < circuit.shape[0] - 1 else 0
             left   = circuit[i][j - 1] 
             right  = circuit[i][j + 1] 
