@@ -1,5 +1,0 @@
-diffusers
-numpy
-torch
-tqdm
-matplotlib

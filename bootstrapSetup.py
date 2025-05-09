@@ -242,8 +242,7 @@ class RowEmbedder(nn.Module):
         self.position_bias = nn.Parameter(torch.zeros(vector_length, embedding_dim))
         
     def forward(self, x):
-        # x shape: [batch_size, vector_length]
-        shared = self.shared_embed(x)  # [batch_size, vector_length, emb_dim]
+        shared = self.shared_embed(x)  
         # Apply position-specific scaling and shifting
         return shared * self.position_weights + self.position_bias
     
@@ -254,6 +253,9 @@ class TabularTransformer(nn.Module):
         self.d_model = d_model
 
         self.row_embedding = RowEmbedder(num_categories, num_features, d_model) #num_categories, vector_length, embedding_dim
+
+        for param in self.row_embedding.parameters():
+            param.requires_grad = False
 
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=d_model * num_features,
@@ -266,6 +268,9 @@ class TabularTransformer(nn.Module):
             encoder_layer,
             num_layers=6,
         )
+
+        for param in self.transformer.parameters():
+            param.requires_grad = False
     
     def forward(self, x):
         #batch_size, num_rows, num_cols = x.shape
@@ -280,6 +285,10 @@ class TabularTransformer(nn.Module):
         return transformed
 
 transformer = TabularTransformer(3, 8, 16)
+transformer.load_state_dict(torch.load('data/tabular_transformer.pt'))
+transformer.eval()
+
+
 
 print("embedder created as transformer")
 print(f"Embedded shape: {transformer(InitialTables)[0].shape}")

@@ -2,6 +2,7 @@
 .vscode/
 nca_square.py
 emojiTensors.py
+output/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
