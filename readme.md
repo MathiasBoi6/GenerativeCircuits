@@ -1,11 +1,9 @@
-# Diffusian and NCA circuits
+# Bootstrapping Generative AI
 
-This is an initial readme file
+Thesis on using Generative AI to generate its own training data through a bootstrapping process.
+This repository contains various scripts and notebooks for running experiments on bootstrapping generative AI.
 
+[IMAGE HERE]
 
-This project depends upon [Evocraft](https://github.com/real-itu/Evocraft-py), with the files 'minecraft_pb2.py' and 'minecraft_pb2_grpc.py' having been copied directly.
+Write about the findings and usecase.
 
-For code that communicates with Minecraft, open a server through the [Evocraft project](https://github.com/real-itu/Evocraft-py).
-
-
-Currently, this project contains multiple jupyter notebooks for testing and developing code.
