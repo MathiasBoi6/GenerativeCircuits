@@ -364,8 +364,13 @@ def Simulate(connectionMap, socketMap, operationOrder):
     for socket in socketMap:
         prefix, id, comp_type = socket.name
 
-        if socket.isSource and prefix == 'NAND' and not socket.state:
-            UpdateCircuitSource(connectionMap, socketMap, socket, 0)
+        if socket.isSource and prefix == 'NAND':
+            emitterState = doesGateFire(
+                getSocket(prefix + id + 'base', socketMap),
+                getSocket(prefix + id + 'collector', socketMap),
+                prefix)
+            if emitterState != socket.state:
+                UpdateCircuitSource(connectionMap, socketMap, socket, 0)
 
 
     for order in operationOrder:
